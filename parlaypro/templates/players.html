@@ -1,0 +1,91 @@
+{% load static %}
+{% load tags %}
+<!doctype html>
+<html lang="en">
+<head>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
+  <link rel="stylesheet"  type="text/css" href="{% static 'parlaypro/styles.css' %}">
+
+
+  <meta charset="utf-8">
+  <title>Parlay Pro</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src=  
+"https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js">  
+    </script>  
+    
+    <script src=  
+"https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js">  
+    </script>  
+    
+    <link href=  
+"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css"
+        rel="stylesheet" type="text/css" />  
+</head>
+<body>
+
+  <header class="header-fixed">
+
+    <div class="header-limiter">
+
+      <h1>Parlay<span>Pro</span></a></h1>
+
+      <nav>
+        <a href="#">Home</a>
+        <a href="#" >Parlay Builder</a>
+        <a href="#" class="selected">Player Search</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="content" >
+  <h2>Player Search</h2>
+    <br>
+  <form action="" method="post">
+    {% csrf_token %}
+    <p class="text-black" style="text-align:left;">Player Name: <input name="player" type="text" maxlength="20"style="width: 30%" ></p>
+    <p class="text-black" style="text-align:left;">Team: <input name="team" type="text" maxlength="20"style="width: 20%" id="tags"></p>
+    <input type="submit" value="Search">
+  </form>
+   <!-- autocomplete function found at https://jqueryui.com/autocomplete/ -->
+   <script>
+    $( function() {
+      var availableTags = [
+          {% for team in teamList %}
+              "{{team}}",
+          {% endfor %}
+      ];
+      $( "#tags" ).autocomplete({
+        source: availableTags
+      });
+    } );
+    </script>
+
+    {% if playerResult %}
+    <table class="styled-table"> 
+        <thead>
+            <tr>
+                <th>Player Name</th>
+                <th>Team City</th>
+                <th>Team Name</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for player in playerResult %}   
+    <tr>
+        <td>{{player|index:2}}</td>
+        <td>{{player|index:3}}</td>
+        <td>{{player|index:0}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
