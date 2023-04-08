@@ -56,3 +56,41 @@ def players(request):
 
 
     return render(request, 'players.html', {'teamList': teamList, 'playerResult': []})
+
+
+
+def playerPage(request, player_id):
+    #get the relevant player information
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM aaa_player NATURAL JOIN aaa_team WHERE player_id = %s', [player_id])
+    playerInfo = cursor.fetchall()
+    #get all the line info
+    cursor.execute('SELECT * FROM aaa_line where player_id = %s', [player_id])
+    lineInfo = cursor.fetchall()
+    gameList = set(l[2] for l in lineInfo)
+    gameInfo = []
+    statInfo = []
+    for game in gameList:
+        #get all of the game and stats info for the given player for that game
+        cursor.execute('SELECT * FROM aaa_stats NATURAL JOIN aaa_game WHERE player_id = %s AND game_id = %s', [player_id, game])
+        statInfo.append(cursor.fetchall())
+    statCategories = set()
+    statDict = {} #format for this dict is {stat_category : [stats_for_game, line_for_game]}
+    #if the player has stats make the dictionary
+    if statInfo:
+        #get all of the different stat categories
+        statCategories = set(s[2] for s in statInfo[0])
+        for stat in statCategories: #init dict
+            statDict[stat] = []
+            #now add all of the game infos
+            for statistic in statInfo[0]:
+                # print(statistic)
+                if statistic[2] == stat:
+                    #get line info for this game and value
+                    cursor.execute('SELECT * FROM aaa_line where player_id = %s AND game_id = %s AND attribute = %s', [player_id, statistic[0], statistic[2]])
+                    line = cursor.fetchall()
+                    statDict[stat].append([statistic, line])
+
+
+        
+    return render(request, 'playerPage.html', {'playerInfo': playerInfo, 'lineInfo':lineInfo, 'gameInfo':gameInfo, 'statCategories':statCategories, 'statInfo':statInfo, 'statDict': statDict})

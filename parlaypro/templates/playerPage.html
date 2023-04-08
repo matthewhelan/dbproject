@@ -1,0 +1,84 @@
+{% load static %}
+{% load tags %}
+<!doctype html>
+<html lang="en">
+<head>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'parlaypro/styles.css' %}">
+
+
+  <meta charset="utf-8">
+  <title>Parlay Pro</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+
+  <header class="header-fixed">
+
+    <div class="header-limiter">
+
+      <h1>Parlay<span>Pro</span></a></h1>
+
+      <nav>
+        <a href="#" class="selected">Home</a>
+        <a href="#" >Parlay Builder</a>
+        <a href="players">Player Search</a>
+      </nav>
+    </div>
+  </header>
+
+{% if playerInfo %}
+  <div class="content">
+    <h4>Player Page</h4>
+
+    {{playerInfo|index:0|index:2}}
+    <br>
+    {{playerInfo|index:0|index:3}} {{playerInfo|index:0|index:0}} 
+    <br><br>
+    {% if statCategories %}
+    <h5>Attributes</h5>
+    {% for stat in statDict %}
+    <b>{{stat.capitalize}}</b>
+    <br>
+    
+    Game Log
+    <br>
+    {% for vals in statDict|get_item:stat %}
+
+    {{vals}}
+    <br>
+    <br>
+    {% endfor %}
+
+    <!-- {{statInfo}}
+    {% for line in lineInfo %}
+    
+    Attribute: {{line|index:3}}
+    <br>
+    Under Odds: {% if line|index:4 > 0%}+{{line|index:4}} {%else%} {{line|index:4}} {%endif%}
+    <br>
+    Over Odds: {% if line|index:5 > 0%}+{{line|index:5}}  {%else%} {{line|index:5}}{%endif%}
+    <br>
+    Sportsbook
+
+    <br>
+    {% endfor %} -->
+    {% endfor %}
+
+    {% else %}
+    <h5>No Stats Found!</h5>
+    {% endif %}
+  </div>
+
+{% else %}
+<div class="content">
+    <h3>Not a valid player!</h3>
+</div>
+
+
+{% endif %}
+</body>
+</html>

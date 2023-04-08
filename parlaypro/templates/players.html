@@ -76,7 +76,7 @@
         <tbody>
     {% for player in playerResult %}   
     <tr>
-        <td>{{player|index:2}}</td>
+        <td><a href="/players/{{player|index:1}}">{{player|index:2}}</a></td>
         <td>{{player|index:3}}</td>
         <td>{{player|index:0}}</td>
     </tr>
