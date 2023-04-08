@@ -41,18 +41,41 @@
     {% if statCategories %}
     <h5>Attributes</h5>
     {% for stat in statDict %}
-    <b>{{stat.capitalize}}</b>
-    <br>
+    <h6>{{stat.capitalize}}</h6>
     
     Game Log
-    <br>
+    
+    <table class="styled-table">
+      <tr>
+        <th>Game</th>
+        <th>Best Odds</th>
+        <th>BETMGM</th>
+        <th>DRAFTKINGS</th>
+        <th>FANDUEL</th>
+        <th>CAESARS</th>
+        <th>BETRIVERS</th>
+        <th>UNIBET</th>
+        <th>CONSENSUS</th>
+      </tr>
     {% for vals in statDict|get_item:stat %}
 
-    {{vals}}
-    <br>
-    <br>
+    <tr>
+      <td>{{vals|index:0|index:5}} at {{vals|index:0|index:6}}</td>
+      <td>{{vals|index:1|index:0|index:7}}<sup>{{vals|index:1|index:0|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:0|index:4}}</sub></td>
+      <td>{{vals|index:1|index:1|index:7}}<sup>{{vals|index:1|index:1|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:1|index:4}}</sub></td>
+      <td>{{vals|index:1|index:2|index:7}}<sup>{{vals|index:1|index:2|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:2|index:4}}</sub></td>
+      <td>{{vals|index:1|index:3|index:7}}<sup>{{vals|index:1|index:3|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:3|index:4}}</sub></td>
+      <td>{{vals|index:1|index:4|index:7}}<sup>{{vals|index:1|index:4|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:4|index:4}}</sub></td>
+      <td>{{vals|index:1|index:5|index:7}}<sup>{{vals|index:1|index:5|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:5|index:4}}</sub></td>
+      <td>{{vals|index:1|index:6|index:7}}<sup>{{vals|index:1|index:6|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:6|index:4}}</sub></td>
+      <td>{{vals|index:1|index:7|index:7}}<sup>{{vals|index:1|index:7|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:7|index:4}}</sub></td>
+    </tr>
+
+    <!-- {{vals}} -->
+    
     {% endfor %}
 
+    </table>
     <!-- {{statInfo}}
     {% for line in lineInfo %}
     
