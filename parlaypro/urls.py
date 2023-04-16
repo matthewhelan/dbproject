@@ -22,6 +22,8 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('players/', views.players, name='players'),
     path('parlays/', views.parlays, name='parlays'),
-    path('players/<int:player_id>', views.playerPage, name='playerpage')
+    path('players/<int:player_id>', views.playerPage, name='playerpage'),
+    path('follow/<int:user_id>/', views.follow, name='followUser'),
+    path('unfollow/<int:user_id>/', views.unfollow, name="unfollowUser"),
 
 ]

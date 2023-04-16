@@ -116,8 +116,6 @@ class AaaTeam(models.Model):
 class AaaUser(models.Model):
     user_id = models.AutoField(primary_key=True)
     user_name = models.CharField(max_length=32)
-    hashed_password = models.CharField(max_length=128)
-    salt = models.CharField(max_length=64)
     name = models.CharField(max_length=30)
     email = models.CharField(max_length=30)
     balance = models.DecimalField(max_digits=11, decimal_places=2)

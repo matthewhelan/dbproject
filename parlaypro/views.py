@@ -1,11 +1,36 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.db import connection
+from django.urls import reverse
+from django.db import connection, transaction
 from django.contrib.auth.decorators import login_required
+from .models import AaaUser
 
 #NOTE: for the scope of this project since we need to execute custom SQL queries
 #we will be using connection.cursor() from django.db module to access the db directly
 #in this way we can execute custom SQL queries (with cursor.execute())
+
+def follow(request, user_id): 
+    cursor = connection.cursor()
+
+    # SQL Looks like
+    # INSERT INTO `aaa_following` (`user_id`, `user_id_follows`) 
+    # VALUES ((SELECT user_id 
+    #          FROM aaa_user
+    #          WHERE email = "{}"), {})
+
+
+    cursor.execute('INSERT INTO `aaa_following` (`user_id`, `user_id_follows`) VALUES ((SELECT user_id FROM aaa_user WHERE email = "{}"), {})'.format(request.user.email, user_id))
+    return HttpResponseRedirect(reverse('index'))
+
+def unfollow(request, user_id):
+    cursor = connection.cursor() 
+    cursor.execute('DELETE FROM `aaa_following` WHERE user_id = ((SELECT user_id FROM aaa_user WHERE email = "{}") AND user_id_follows = {})'.format(request.user.email, user_id))
+    connection.commit()
+
+    #^^^ figure out how to delete here???
+
+    print('DELETE FROM `aaa_following` WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}") AND user_id_follows = {}'.format(request.user.email, user_id))
+    return HttpResponseRedirect(reverse('index'))
 
 def login(request): 
     if request.user.is_authenticated: 
@@ -32,7 +57,7 @@ def index(request):
         cursor.execute('INSERT INTO aaa_user (user_name, email, balance) VALUES ("{}", "{}", "{}")'.format(request.user.username, request.user.email, 0))
     
     user_balance = getBalance(request.user.email)
-    print(user_balance)
+    print("balance: {}".format(user_balance))
 
     # check if the user email exists in the database
 
@@ -42,8 +67,55 @@ def index(request):
 
     # either way at the end we extract the user's money and pass it to the render
 
+
+
+    # getting list of all users, that are not friends with user, (going to display five or so)
+    # with a "add friend button"
+    # SQL looks like: 
+
+    # SELECT * from aaa_user 
+    # WHERE aaa_user.user_id NOT IN (SELECT user_id_follows 
+    #                                FROM aaa_following
+    #                                WHERE user_id = (SELECT user_id 
+    #                                                 FROM aaa_user 
+    #                                                 WHERE email = request.user.email))
+    # ORDER BY RAND()
+    # LIMIT 5
+
+    cursor.execute('SELECT * FROM aaa_user WHERE aaa_user.user_id NOT IN (SELECT user_id_follows FROM aaa_following WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}")) ORDER BY RAND() LIMIT 5'.format(request.user.email))
+    addableUsers = cursor.fetchall()
+
+    addableUsersList = []
+
+    for userInfo in addableUsers: 
+        user = AaaUser()
+        user.user_id = userInfo[0]
+        user.user_name = userInfo[1]
+        user.name = userInfo[2]
+        user.email = userInfo[3]
+
+        addableUsersList.append(user)
+
+    # display list of current friends (five or so) 
+    # with a "remove friend button"
+
+    cursor.execute('SELECT * FROM aaa_user WHERE aaa_user.user_id IN (SELECT user_id_follows FROM aaa_following WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}")) ORDER BY RAND() LIMIT 5'.format(request.user.email))
+    followedUsers = cursor.fetchall()
+
+    followedUsersList = []
+
+    for userInfo in followedUsers:
+        user = AaaUser()
+        user.user_id = userInfo[0]
+        user.user_name = userInfo[1]
+        user.name = userInfo[2]
+        user.email = userInfo[3]
+
+        followedUsersList.append(user)
+
+
     cursor = connection.cursor()
-    return render(request, 'index.html', context={'balance':user_balance})
+    return render(request, 'index.html', context={'balance':user_balance, 'addableUsers':addableUsersList, 'followedUsers':followedUsersList})
 
 @login_required
 def parlays(request): 
