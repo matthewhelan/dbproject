@@ -1,13 +1,21 @@
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.db import connection, transaction
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from .models import AaaUser
 
 #NOTE: for the scope of this project since we need to execute custom SQL queries
 #we will be using connection.cursor() from django.db module to access the db directly
 #in this way we can execute custom SQL queries (with cursor.execute())
+
+def logout_view(request): 
+    if not request.user.is_authenticated: 
+        return HttpResponseRedirect(reverse('index'))
+
+    logout(request)
+    return redirect('/index/')
 
 def follow(request, user_id): 
     cursor = connection.cursor()

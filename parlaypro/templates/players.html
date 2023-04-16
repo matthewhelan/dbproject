@@ -1,45 +1,8 @@
+{% extends "base.html" %}
 {% load static %}
 {% load tags %}
-<!doctype html>
-<html lang="en">
-<head>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
-  <link rel="stylesheet"  type="text/css" href="{% static 'parlaypro/styles.css' %}">
 
-
-  <meta charset="utf-8">
-  <title>Parlay Pro</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script src=  
-"https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js">  
-    </script>  
-    
-    <script src=  
-"https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js">  
-    </script>  
-    
-    <link href=  
-"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css"
-        rel="stylesheet" type="text/css" />  
-</head>
-<body>
-
-  <header class="header-fixed">
-
-    <div class="header-limiter">
-
-      <h1>Parlay<span>Pro</span></a></h1>
-
-      <nav>
-        <a href="#">Home</a>
-        <a href="#" >Parlay Builder</a>
-        <a href="#" class="selected">Player Search</a>
-      </nav>
-    </div>
-  </header>
+{% block content %}
 
   <div class="content" >
   <h2>Player Search</h2>
@@ -87,5 +50,4 @@
 
 </div>
 
-</body>
-</html>
+{% endblock %}
