@@ -32,12 +32,19 @@ def follow(request, user_id):
 
 def unfollow(request, user_id):
     cursor = connection.cursor() 
-    cursor.execute('DELETE FROM `aaa_following` WHERE user_id = ((SELECT user_id FROM aaa_user WHERE email = "{}") AND user_id_follows = {})'.format(request.user.email, user_id))
-    connection.commit()
+    try: 
+        # first have to find the user id of our user
+        cursor.execute("SELECT user_id FROM aaa_user WHERE email=\"{}\"".format(request.user.email))
+        mainUserID = cursor.fetchall()
+        
+        # then have to match our userid (fetched from above here)
+        cursor.execute("DELETE FROM aaa_following WHERE user_id = {} AND user_id_follows = {}".format(mainUserID[0][0], user_id))
+        connection.commit() 
 
-    #^^^ figure out how to delete here???
+    except Exception as e: 
+        print("error occured")
+        print(e)
 
-    print('DELETE FROM `aaa_following` WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}") AND user_id_follows = {}'.format(request.user.email, user_id))
     return HttpResponseRedirect(reverse('index'))
 
 def login(request): 
