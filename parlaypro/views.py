@@ -134,7 +134,14 @@ def index(request):
 
 @login_required
 def parlays(request): 
-    return render(request, 'index.html')
+    return render(request, 'parlays.html')
+
+
+@login_required
+def create_parlay(request):
+    #create a new active parlay
+    return render(request, 'createparlay.html')
+
 
 @login_required
 def players(request):
