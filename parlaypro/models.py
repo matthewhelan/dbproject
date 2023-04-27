@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.forms import ModelForm
 
 
 
@@ -76,6 +77,7 @@ class AaaParlay(models.Model):
     open = models.IntegerField(blank=True, null=True)
     number_of_legs = models.IntegerField(blank=True, null=True)
     amount_wagered = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    line = models.ForeignKey(AaaLine, on_delete=models.PROTECT)
 
     class Meta:
         managed = False
@@ -126,3 +128,12 @@ class AaaUser(models.Model):
         unique_together = (('user_id', 'user_name'),)
 
 
+class AaaLineForm(ModelForm):
+    class Meta:
+        model = AaaLine
+        fields = ['line_id', 'player', 'game', 'attribute', 'under_odds', 'over_odds', 'sportsbook', 'value']
+
+class AaaParlayForm(ModelForm):
+    class Meta:
+        model = AaaParlay
+        fields = ['parlay_id', 'user', 'open', 'number_of_legs', 'amount_wagered', 'line']

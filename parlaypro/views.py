@@ -129,10 +129,24 @@ def index(request):
 def parlays(request): 
     return render(request, 'parlays.html')
 
+@login_required
+def view_lines(request):
+    cursor = connection.cursor()
+    cursor.execute('SELECT name, team_name, attribute, over_odds, under_odds, value, sportsbook FROM aaa_player NATURAL JOIN aaa_line WHERE line_id > 4980 AND team_name = "Suns"')
+    line_list = cursor.fetchall()
+        
+    return render(request, 'createparlay.html', {'line_list': line_list})
 
 @login_required
 def create_parlay(request):
-    #create a new active parlay
+    # create a new active parlay
+    if request.method == 'POST':
+        # print('i am here')
+        print(request.POST.get('player_name'), request.POST.get('team'), request.POST.get('attribute'), request.POST.get('over_odds'), request.POST.get('value'), request.POST.get('sportsbook'))
+
+        return render(request, 'createparlay.html')
+
+    print('not in the conditional')
     return render(request, 'createparlay.html')
 
 
