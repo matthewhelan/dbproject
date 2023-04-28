@@ -203,6 +203,11 @@ def playerPage(request, player_id):
     gameList = set(l[2] for l in lineInfo)
     gameInfo = []
     statInfo = []
+
+    cursor.execute('SELECT * FROM aaa_line WHERE player_id = %s AND sportsbook = \"DRAFTKINGS\"', [player_id])
+    addableLines = cursor.fetchall()
+    
+
     for game in gameList:
         #get all of the game and stats info for the given player for that game
         cursor.execute('SELECT * FROM aaa_stats NATURAL JOIN aaa_game WHERE player_id = %s AND game_id = %s', [player_id, game])
@@ -224,6 +229,5 @@ def playerPage(request, player_id):
                     line = cursor.fetchall()
                     statDict[stat].append([statistic, line])
 
-
         
-    return render(request, 'playerPage.html', {'playerInfo': playerInfo, 'lineInfo':lineInfo, 'gameInfo':gameInfo, 'statCategories':statCategories, 'statInfo':statInfo, 'statDict': statDict})
+    return render(request, 'playerPage.html', {'playerInfo': playerInfo, 'lineInfo':lineInfo, 'addableLines':addableLines, 'gameInfo':gameInfo, 'statCategories':statCategories, 'statInfo':statInfo, 'statDict': statDict})

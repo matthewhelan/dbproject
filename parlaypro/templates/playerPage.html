@@ -10,67 +10,92 @@
   <div class="content">
     <h4>Player Page</h4>
 
-    {{playerInfo|index:0|index:2}}
+    Player: {{playerInfo|index:0|index:2}}
     <br>
-    {{playerInfo|index:0|index:3}} {{playerInfo|index:0|index:0}} 
+    Team: {{playerInfo|index:0|index:3}} {{playerInfo|index:0|index:0}} 
     <br><br>
+
+    Current Lines: 
+
+    <table class="styled-table">
+      <tr>
+        <th>Line_ID</th>
+        <th>Player_ID</th>
+        <th>Game_ID</th>
+        <th>Attribute</th>
+        <th>Under_Odds</th>
+        <th>Over_Odds</th>
+        <th>Sportsbook</th>
+        <th>value</th>
+      </tr>
+      {% for vals in addableLines %}
+
+      <tr>
+        <td>{{vals|index:0}}</td>
+        <td>{{vals|index:1}}</td>
+        <td>{{vals|index:2}}</td>
+        <td>{{vals|index:3}}</td>
+        <td>{{vals|index:4}}</td>
+        <td>{{vals|index:5}}</td>
+        <td>{{vals|index:6}}</td>
+        <td>{{vals|index:7}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+
     {% if statCategories %}
     <h5>Attributes</h5>
     {% for stat in statDict %}
-    <h6>{{stat.capitalize}}</h6>
+      <h6>{{stat.capitalize}}</h6>
+      <br>
+      Game Log
+      <table class="styled-table">
+        <tr>
+          <th>Game</th>
+          <th>Actual Value</th>
+          <th>Best Odds</th>
+          <th>BETMGM</th>
+          <th>DRAFTKINGS</th>
+          <th>FANDUEL</th>
+          <th>CAESARS</th>
+          <th>BETRIVERS</th>
+          <th>UNIBET</th>
+          <th>CONSENSUS</th>
+        </tr>
+      {% for vals in statDict|get_item:stat %}
 
-    Current Lines
+        <tr>
+          <td>{{vals|index:0|index:5}} at {{vals|index:0|index:6}}</td>
+          <td>{{vals|index:0|index:3}}</td>
+          <td>{{vals|index:1|index:0|index:7}}<sup>{{vals|index:1|index:0|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:0|index:4}}</sub></td>
+          <td>{{vals|index:1|index:1|index:7}}<sup>{{vals|index:1|index:1|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:1|index:4}}</sub></td>
+          <td>{{vals|index:1|index:2|index:7}}<sup>{{vals|index:1|index:2|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:2|index:4}}</sub></td>
+          <td>{{vals|index:1|index:3|index:7}}<sup>{{vals|index:1|index:3|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:3|index:4}}</sub></td>
+          <td>{{vals|index:1|index:4|index:7}}<sup>{{vals|index:1|index:4|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:4|index:4}}</sub></td>
+          <td>{{vals|index:1|index:5|index:7}}<sup>{{vals|index:1|index:5|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:5|index:4}}</sub></td>
+          <td>{{vals|index:1|index:6|index:7}}<sup>{{vals|index:1|index:6|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:6|index:4}}</sub></td>
+          <td>{{vals|index:1|index:7|index:7}}<sup>{{vals|index:1|index:7|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:7|index:4}}</sub></td>
+        </tr>
 
-    <br>
-    
-    Game Log
-    
-    <table class="styled-table">
-      <tr>
-        <th>Game</th>
-        <th>Actual Value</th>
-        <th>Best Odds</th>
-        <th>BETMGM</th>
-        <th>DRAFTKINGS</th>
-        <th>FANDUEL</th>
-        <th>CAESARS</th>
-        <th>BETRIVERS</th>
-        <th>UNIBET</th>
-        <th>CONSENSUS</th>
-      </tr>
-    {% for vals in statDict|get_item:stat %}
+      <!-- {{vals}} -->
+      
+      {% endfor %}
+      </table>
 
-    <tr>
-      <td>{{vals|index:0|index:5}} at {{vals|index:0|index:6}}</td>
-      <td>{{vals|index:0|index:3}}</td>
-      <td>{{vals|index:1|index:0|index:7}}<sup>{{vals|index:1|index:0|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:0|index:4}}</sub></td>
-      <td>{{vals|index:1|index:1|index:7}}<sup>{{vals|index:1|index:1|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:1|index:4}}</sub></td>
-      <td>{{vals|index:1|index:2|index:7}}<sup>{{vals|index:1|index:2|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:2|index:4}}</sub></td>
-      <td>{{vals|index:1|index:3|index:7}}<sup>{{vals|index:1|index:3|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:3|index:4}}</sub></td>
-      <td>{{vals|index:1|index:4|index:7}}<sup>{{vals|index:1|index:4|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:4|index:4}}</sub></td>
-      <td>{{vals|index:1|index:5|index:7}}<sup>{{vals|index:1|index:5|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:5|index:4}}</sub></td>
-      <td>{{vals|index:1|index:6|index:7}}<sup>{{vals|index:1|index:6|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:6|index:4}}</sub></td>
-      <td>{{vals|index:1|index:7|index:7}}<sup>{{vals|index:1|index:7|index:5}}</sup>&frasl;<sub>{{vals|index:1|index:7|index:4}}</sub></td>
-    </tr>
+      <!-- {{statInfo}}
+      {% for line in lineInfo %}
+      
+      Attribute: {{line|index:3}}
+      <br>
+      Under Odds: {% if line|index:4 > 0%}+{{line|index:4}} {%else%} {{line|index:4}} {%endif%}
+      <br>
+      Over Odds: {% if line|index:5 > 0%}+{{line|index:5}}  {%else%} {{line|index:5}}{%endif%}
+      <br>
+      Sportsbook
 
-    <!-- {{vals}} -->
-    
-    {% endfor %}
-
-    </table>
-    <!-- {{statInfo}}
-    {% for line in lineInfo %}
-    
-    Attribute: {{line|index:3}}
-    <br>
-    Under Odds: {% if line|index:4 > 0%}+{{line|index:4}} {%else%} {{line|index:4}} {%endif%}
-    <br>
-    Over Odds: {% if line|index:5 > 0%}+{{line|index:5}}  {%else%} {{line|index:5}}{%endif%}
-    <br>
-    Sportsbook
-
-    <br>
-    {% endfor %} -->
+      <br>
+      {% endfor %} -->
     {% endfor %}
 
     {% else %}
