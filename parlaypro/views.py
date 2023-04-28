@@ -130,24 +130,39 @@ def parlays(request):
     return render(request, 'parlays.html')
 
 @login_required
-def view_lines(request):
+def active(request):
     cursor = connection.cursor()
     cursor.execute('SELECT name, team_name, attribute, over_odds, under_odds, value, sportsbook FROM aaa_player NATURAL JOIN aaa_line WHERE line_id > 4980 AND team_name = "Suns"')
     line_list = cursor.fetchall()
-        
-    return render(request, 'createparlay.html', {'line_list': line_list})
+    parlay = []
+    if 'parlay' in request.session:
+        parlay = request.session['parlay']
+    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay})
 
 @login_required
 def create_parlay(request):
     # create a new active parlay
     if request.method == 'POST':
-        # print('i am here')
-        print(request.POST.get('player_name'), request.POST.get('team'), request.POST.get('attribute'), request.POST.get('over_odds'), request.POST.get('value'), request.POST.get('sportsbook'))
+        name = request.POST.get('player_name')
+        team = request.POST.get('team')
+        attribute = request.POST.get('attribute')
+        over = request.POST.get('over_odds')
+        under = request.POST.get('under_odds')
+        val = request.POST.get('value')
+        book = request.POST.get('sportsbook')
+        parlay = [name, team, attribute, over, under, val, book]
+        # print(parlay)
 
-        return render(request, 'createparlay.html')
+        if 'parlay' in request.session:
+            p = request.session['parlay']
+            p.append((parlay, None))
+            request.session['parlay'] = p
+        else: #add to a new session with the parlay info, over/under
+            request.session['parlay'] = [(parlay, None)]
 
-    print('not in the conditional')
-    return render(request, 'createparlay.html')
+        return redirect(active)
+
+    return redirect(active)
 
 
 @login_required
