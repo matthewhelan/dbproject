@@ -4,8 +4,92 @@
 
 {% block content %}
 
-<h2>Create A New Parlay!</h2>
+<h2>Current Parlay:</h2>
 <br>
+
+<table class="styled-table"> 
+    <thead>
+        <tr>
+            <th>Player Name</th>
+            <th>Team</th>
+            <th>Attribute</th>
+            <th>Over Odds</th>
+            <th>Under Odds</th>
+            <th>Value</th>
+            <th>Sportsbook</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for line in parlay %}   
+<tr> 
+    <td>{{line|index:0|index:0}}</td>
+    <td>{{line|index:0|index:1}}</td>
+    <td>{{line|index:0|index:2}}</td>
+    <td>{{line|index:0|index:3}}</td>
+    <td>{{line|index:0|index:4}}</td>
+    <td>{{line|index:0|index:5}}</td>
+    <td>{{line|index:0|index:6}}</td>
+    <td>
+        
+    </td>
+    
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+<br>
+
+<br>
+<br>
+
+<table class="styled-table"> 
+    <thead>
+        <tr>
+            <th>Player Name</th>
+            <th>Team</th>
+            <th>Attribute</th>
+            <th>Over Odds</th>
+            <th>Under Odds</th>
+            <th>Value</th>
+            <th>Sportsbook</th>
+            <th>Add Line</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for line in line_list %}   
+<tr>
+    <td>{{line|index:0}}</td>
+    <td>{{line|index:1}}</td>
+    <td>{{line|index:2}}</td>
+    <td>{{line|index:3}}</td>
+    <td>{{line|index:4}}</td>
+    <td>{{line|index:5}}</td>
+    <td>{{line|index:6}}</td>
+    <td>
+
+<form action="/parlays/create/" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="player_name" value="{{line|index:0}}"></input>
+    <input type="hidden" name="team" value="{{line|index:1}}"></input>
+    <input type="hidden" name="attribute" value="{{line|index:2}}"></input>
+    <input type="hidden" name="over_odds" value="{{line|index:3}}"></input>
+    <input type="hidden" name="under_odds" value="{{line|index:4}}"></input>
+    <input type="hidden" name="value" value="{{line|index:5}}"></input>
+    <input type="hidden" name="sportsbook" value="{{line|index:6}}"></input>
+    <input type="submit" value="Add to Parlay"></input>
+</form>
+</td>
+    
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
 <h4>Current Amount of Legs: {{legs}}</h4>
+<br>
 
 {% endblock %}
