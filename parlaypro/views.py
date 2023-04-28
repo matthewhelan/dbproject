@@ -47,6 +47,24 @@ def unfollow(request, user_id):
 
     return HttpResponseRedirect(reverse('index'))
 
+def like(request, parlay_id): 
+    cursor = connection.cursor()
+    cursor.execute("SELECT user_id FROM aaa_user WHERE email=\"{}\"".format(request.user.email))
+    mainUserID = cursor.fetchall()[0][0]
+
+    cursor.execute("INSERT INTO aaa_likes(user_id, parlay_id) VALUES ({},{})".format(mainUserID, parlay_id))
+
+    return HttpResponseRedirect(reverse('index'))
+
+def unlike(request, parlay_id): 
+    cursor = connection.cursor()
+    cursor.execute("SELECT user_id FROM aaa_user WHERE email=\"{}\"".format(request.user.email))
+    mainUserID = cursor.fetchall()[0][0]
+
+    cursor.execute("DELETE FROM aaa_likes WHERE user_id={} AND parlay_id={}".format(mainUserID, parlay_id))
+
+    return HttpResponseRedirect(reverse('index'))
+
 def login(request): 
     if request.user.is_authenticated: 
         return HttpResponseRedirect('/index')
@@ -99,7 +117,6 @@ def index(request):
 
     cursor.execute('SELECT * FROM aaa_user WHERE aaa_user.user_id NOT IN (SELECT user_id_follows FROM aaa_following WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}")) ORDER BY RAND() LIMIT 5'.format(request.user.email))
     addableUsers = cursor.fetchall()
-
     addableUsersList = []
 
     for userInfo in addableUsers: 
@@ -129,8 +146,65 @@ def index(request):
         followedUsersList.append(user)
 
 
-    cursor = connection.cursor()
-    return render(request, 'index.html', context={'balance':user_balance, 'addableUsers':addableUsersList, 'followedUsers':followedUsersList})
+    # Need to select the parlays from players you're friends with
+    # my userid = 101
+    # but how we do this is going to be interesting
+    # cause we need to be able to show parlays from users on a per-line basis
+    # and add the ability to like the parlay
+    # 'SELECT * 
+    # FROM ((aaa_following JOIN aaa_parlay ON aaa_following.user_id_follows = aaa_parlay.user_id) JOIN aaa_user ON aaa_following.user_id_follows = aaa_user.user_id) NATURAL JOIN aaa_leg WHERE aaa_user.user_id IN (SELECT user_id_follows FROM aaa_following 
+    # WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}"))'
+
+    # cursor.execute('SELECT * FROM ((aaa_following JOIN aaa_parlay ON aaa_following.user_id_follows = aaa_parlay.user_id) JOIN aaa_user ON aaa_following.user_id_follows = aaa_user.user_id) NATURAL JOIN aaa_leg WHERE aaa_user.user_id IN (SELECT user_id_follows FROM aaa_following WHERE user_id = (SELECT user_id FROM aaa_user WHERE email = "{}"))'.format(request.user.email))
+    # linesFromFollowedUsers = cursor.fetchall()
+
+    # # print(linesFromFollowedUsers)
+
+    # for followingLines in linesFromFollowedUsers: 
+    #     print(followingLines)
+
+    # friend_name, friend_username, likes, parlay details, 
+
+    cursor.execute('SELECT user_id FROM aaa_user WHERE email = \"{}\"'.format(request.user.email))
+    userID = cursor.fetchall()[0][0]
+    print(userID)
+
+    # SELECT * 
+    # FROM aaa_parlay NATURAL JOIN aaa_leg NATURAL JOIN aaa_line
+    # WHERE aaa_parlay.user_id IN (SELECT follow_user_id FROM aaa_following WHERE user_id = {})
+    cursor.execute('SELECT parlay_id, user_id, name, attribute, value, under FROM aaa_parlay NATURAL JOIN aaa_leg NATURAL JOIN aaa_line NATURAL JOIN aaa_player WHERE aaa_parlay.user_id IN (SELECT user_id_follows FROM aaa_following WHERE user_id = {})'.format(userID))
+    followingParlays = cursor.fetchall()
+
+    # need to group all of this by the parlay_id
+    # then we iterate over each of the parlays and extract if 
+    # the current user likes the parlay and the user who made the parlay's details
+    parlays = {}
+    for i in followingParlays: 
+        parlays[i[0]] = parlays.get(i[0], [])
+        parlays[i[0]].append(i)
+
+    parlayDetails = {}
+    for key, values in parlays.items(): 
+        cursor.execute('SELECT * FROM aaa_likes WHERE user_id = {} AND parlay_id = {}'.format(userID, key))
+        likesResult = cursor.fetchall()
+
+        if ( len(likesResult) == 0 ): 
+            likes = False
+        else: 
+            likes = True
+
+        cursor.execute('SELECT email FROM aaa_parlay NATURAL JOIN aaa_user WHERE parlay_id = {}'.format(key))
+        otherUser = cursor.fetchall()[0][0]
+
+        parlayDetails[(key, otherUser, likes)] = values
+
+    for i in parlayDetails: 
+        print(i)
+        print(parlayDetails[i])
+
+    print(parlayDetails)
+
+    return render(request, 'index.html', context={'balance':user_balance, 'addableUsers':addableUsersList, 'followedUsers':followedUsersList, 'parlayDetails':parlayDetails})
 
 @login_required
 def parlays(request): 

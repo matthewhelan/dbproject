@@ -1,74 +1,109 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load tags %}
 
 {% block content %}
-<div class="container mb-3">
-  <div class="row">
-    <div class="col">
-      <h3 class="text-capitalize">Welcome, {{ user.username }}!</h3>
+  <div class="container mb-3">
+    <div class="row">
+      <div class="col">
+        <h3 class="text-capitalize">Welcome, {{ user.username }}!</h3>
+      </div>
+      
     </div>
-    
   </div>
-</div>
 <!-- <p>Your balance is: {{ balance }} </p> -->
 
-<!-- https://getbootstrap.com/docs/5.0/components/accordion/ -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-        Following
-      </button>
-    </h2>
-    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-      <div class="accordion-body">
-        <strong>Here are all the people you follow.</strong> Click on a name to see their parlays! <br></br>
-        <ul class="list-group">
-          {% for user in followedUsers %}
-            {{ user.user_name }}&nbsp&nbsp
-            {{ user.name }}
-            {{ user.email }}
-            <li class="list-group-item">
-              <a href="/unfollow/{{user.user_id}}/" class="btn btn-outline-danger"> Unfollow </a> 
-            </li> 
-            {% empty %}
-            Sorry, no friends in this list.
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-  
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="panelsStayOpen-headingThree">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="true" aria-controls="panelsStayOpen-collapseThree">
-        Other Users
-      </button>
-    </h2>
-    <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
-      <div class="accordion-body">
-        <strong>Here are all the other users.</strong> Feel free to follow them! 
-        <br></br>
-        <ul class="list-group">
-          {% for user in addableUsers %}
-            <li class="list-group-item text-capitalize">
+  {% for key,values in parlayDetails.items %}
+    
+
+    <!-- {{key}} -->
+    <caption>Parlay by {{key|index:1}}</caption>
+    {% if key|index:2 %}
+      <a href="/unlike/{{key|index:0}}/" class="btn btn-outline-danger"> Unlike </a> 
+    {% else %}
+      <a href="/like/{{key|index:0}}/" class="btn btn-outline-danger"> Like </a> 
+    {% endif %}
+    
+    <table class="styled-table">
+      <tr>
+        <th>Player</th>
+        <th>Attribute</th>
+        <th>Value</th>
+        <th>Over/Under</th>
+      </tr>
+      {% for value in values %}
+        <tr>
+          <td>{{value|index:2}}</td>
+          <td>{{value|index:3}}</td>
+          <td>{{value|index:4}}</td>
+          {% if value|index:5 %}
+            <td>Under</td>
+          {% else %} 
+            <td>Over</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+
+    </table>
+    
+  {% endfor %}
+
+  <!-- https://getbootstrap.com/docs/5.0/components/accordion/ -->
+  <div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+          Following
+        </button>
+      </h2>
+      <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+        <div class="accordion-body">
+          <strong>Here are all the people you follow.</strong> Click on a name to see their parlays! <br></br>
+          <ul class="list-group">
+            {% for user in followedUsers %}
               {{ user.user_name }}&nbsp&nbsp
               {{ user.name }}
               {{ user.email }}
-              <a href="/follow/{{user.user_id}}/" class="btn btn-outline-dark btn-sm"> 
-                <i class="bi bi-person-plus-fill fa-6x"> </i>
-                Follow
-              </a>
-            </li>
-          {% empty %}
-            Sorry, you've either already sent friend requests to everyone, or you are the only user in the system
-          {% endfor %}
-        </ul>
+              <li class="list-group-item">
+                <a href="/unfollow/{{user.user_id}}/" class="btn btn-outline-danger"> Unfollow </a> 
+              </li> 
+              {% empty %}
+              Sorry, no friends in this list.
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
     
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="true" aria-controls="panelsStayOpen-collapseThree">
+          Other Users
+        </button>
+      </h2>
+      <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
+        <div class="accordion-body">
+          <strong>Here are all the other users.</strong> Feel free to follow them! 
+          <br></br>
+          <ul class="list-group">
+            {% for user in addableUsers %}
+              <li class="list-group-item text-capitalize">
+                {{ user.user_name }}&nbsp&nbsp
+                {{ user.name }}
+                {{ user.email }}
+                <a href="/follow/{{user.user_id}}/" class="btn btn-outline-dark btn-sm"> 
+                  <i class="bi bi-person-plus-fill fa-6x"> </i>
+                  Follow
+                </a>
+              </li>
+            {% empty %}
+              Sorry, you've either already sent friend requests to everyone, or you are the only user in the system
+            {% endfor %}
+          </ul>
+      
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 {% endblock %}

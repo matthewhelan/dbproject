@@ -27,6 +27,8 @@ urlpatterns = [
     path('players/<int:player_id>', views.playerPage, name='playerpage'),
     path('follow/<int:user_id>/', views.follow, name='followUser'),
     path('unfollow/<int:user_id>/', views.unfollow, name="unfollowUser"),
+    path('like/<int:parlay_id>/', views.like, name='like'),
+    path('unlike/<int:parlay_id>/', views.unlike, name="unlike"),
     path('logout/', views.logout_view, name='logout')
 
 ]
