@@ -5,6 +5,7 @@ from django.db import connection, transaction
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from .models import AaaUser
+from django.contrib import messages
 
 #NOTE: for the scope of this project since we need to execute custom SQL queries
 #we will be using connection.cursor() from django.db module to access the db directly
@@ -134,6 +135,7 @@ def index(request):
 
 @login_required
 def parlays(request): 
+    # del request.session['parlay']
     return render(request, 'parlays.html')
 
 @login_required
@@ -144,10 +146,62 @@ def active(request):
     parlay = []
     if 'parlay' in request.session:
         parlay = request.session['parlay']
-    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay})
+    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay, 'messages': messages.get_messages(request), 'button1_active': False, 'button2_active': False})
+
+@login_required
+def submit_parlay(request):
+    if request.method == 'POST':
+        if 'parlay' in request.session:
+            parlay = request.session['parlay']
+
+            #see if all of the over/unders are selected
+            for leg in parlay:
+                name = leg[0][0]
+                attr = leg[0][2]
+                print(name+'-'+attr)
+                o = request.POST.get(name+'-'+attr)
+                print(o)
+                if o == None:
+                    messages.error(request, 'Need to select either over or under for all legs')
+                    return redirect(active)
+
+
+
+        else:
+            print('hi')
+            messages.error(request, 'Need at least one leg in the parlay')
+            return redirect(active)
+        
+
+
+
+
+    return redirect(active)
+
+
+@login_required
+def delete_leg(request):
+    if request.method == 'POST':
+        if 'parlay' in request.session:
+            #get idx
+            idx = request.POST.get('idx')
+            p = request.session['parlay']
+            print(p)
+            if len(p) > 1:
+                del p[int(idx)]
+                request.session['parlay'] = p
+            else:    
+                del request.session['parlay']
+            print(p)
+        
+    return redirect(active)
+    
+
+
 
 @login_required
 def create_parlay(request):
+    
     # create a new active parlay
     if request.method == 'POST':
         name = request.POST.get('player_name')
@@ -157,7 +211,7 @@ def create_parlay(request):
         under = request.POST.get('under_odds')
         val = request.POST.get('value')
         book = request.POST.get('sportsbook')
-        parlay = [name, team, attribute, over, under, val, book]
+        parlay = [name, team, attribute,  val, book, over, under,]
         # print(parlay)
 
         if 'parlay' in request.session:

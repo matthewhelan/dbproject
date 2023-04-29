@@ -4,40 +4,85 @@
 
 {% block content %}
 
+{% if messages %}
+{% for message in messages %}
+ {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+
 <h2>Current Parlay:</h2>
 <br>
 
 <table class="styled-table"> 
     <thead>
         <tr>
+            <th>Remove Leg</th>
             <th>Player Name</th>
             <th>Team</th>
             <th>Attribute</th>
-            <th>Over Odds</th>
-            <th>Under Odds</th>
             <th>Value</th>
             <th>Sportsbook</th>
+            <th>Over Odds</th>
+            <th>Under Odds</th>
         </tr>
     </thead>
     <tbody>
 {% for line in parlay %}   
 <tr> 
+    <td><form action="/parlays/delete_leg/" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="idx" value="{{ forloop.counter0 }}"></input>
+        
+        <input type="submit" value="X" style="margin-left: auto; margin-right: auto;" >
+    </form></td>
     <td>{{line|index:0|index:0}}</td>
     <td>{{line|index:0|index:1}}</td>
     <td>{{line|index:0|index:2}}</td>
     <td>{{line|index:0|index:3}}</td>
-    <td>{{line|index:0|index:4}}</td>
-    <td>{{line|index:0|index:5}}</td>
-    <td>{{line|index:0|index:6}}</td>
+    <td>{{line|index:0|index:4}} </td>
+            <td><form action="/parlays/submit/" method="POST"><label class="radio">{{line|index:0|index:5}}  
+                
+                <input type="radio" id="over" name="{{line|index:0|index:0}}-{{line|index:0|index:2}}" value="Over" class="toggle-button" onclick="toggleButton(1)"></button>  <span class="checkmark"></span>
+                
+                </label>
+    </td>
+    <td> {{line|index:0|index:6}} 
+        <label class="radio">
+        <input type="radio" id="under" name="{{line|index:0|index:0}}-{{line|index:0|index:2}}" class="toggle-button" value="Under" onclick="toggleButton(2)"></button>
+        <span class="checkmark"></span> 
+        </label></td>
+                
     <td>
         
+
     </td>
+
+       
+  
+        <script>function toggleButton(button) {
+            var button1 = document.getElementById('over');
+            var button2 = document.getElementById('under');
+            
+            if (button === 1) {
+              button1.classList.add('active');
+              button2.classList.remove('active');
+            } else {
+              button1.classList.remove('active');
+              button2.classList.add('active');
+            }
+          }</script>
     
 </tr>
 {% endfor %}
-
 </tbody>
 </table>
+
+    {% csrf_token %}
+    <p>Amount to Wager</p> <input required type="number" name="amount"> <input type="submit" value="Submit Parlay"></input>
+</form>
 
 <br>
 
@@ -50,10 +95,10 @@
             <th>Player Name</th>
             <th>Team</th>
             <th>Attribute</th>
-            <th>Over Odds</th>
-            <th>Under Odds</th>
             <th>Value</th>
             <th>Sportsbook</th>
+            <th>Over Odds</th>
+            <th>Under Odds</th>
             <th>Add Line</th>
         </tr>
     </thead>
