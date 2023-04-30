@@ -78,7 +78,7 @@
 </table>
 
     {% csrf_token %}
-    <p>Amount to Wager</p> <input required type="number" name="amount"> <input type="submit" value="Submit Parlay"></input>
+    <p>Amount to Wager</p> <input required type="number" min="0.01" step="0.01" name="amount"> <input type="submit" value="Submit Parlay"></input>
 </form>
 
 <br>

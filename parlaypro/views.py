@@ -247,7 +247,33 @@ def index(request):
 @login_required
 def parlays(request): 
     #del request.session['parlay']
-    return render(request, 'parlays.html')
+
+    #get the active parlays with current user id
+    uid = getUserId(request)
+    cursor = connection.cursor()
+    #find all of parlay IDs
+    cursor.execute('SELECT * FROM aaa_parlay WHERE user_id = %s AND open=1', [uid])
+    openParlayIDs = cursor.fetchall()
+    print(openParlayIDs)
+    openParlayDict = {}
+    #get all of the leg info
+    for id in openParlayIDs:
+        cursor.execute('SELECT * FROM aaa_leg NATURAL JOIN aaa_line NATURAL JOIN aaa_player NATURAL JOIN aaa_team WHERE parlay_id=%s', [id[0]])
+        openParlayInfo = cursor.fetchall()
+        openParlayDict[id[0]] = openParlayInfo
+
+    #get closed parlays with current user id
+    cursor.execute('SELECT * FROM aaa_parlay NATURAL JOIN aaa_leg WHERE user_id = %s AND open=0', [uid])
+    closedParlays = cursor.fetchall()
+    closedParlayDict = {}
+    #get all of the leg info
+    for id in closedParlays:
+        cursor.execute('SELECT * FROM aaa_leg NATURAL JOIN aaa_line NATURAL JOIN aaa_player NATURAL JOIN aaa_team WHERE parlay_id=%s', [id[0]])
+        closed = cursor.fetchall()
+        closedParlayDict[id[0]] = closed
+                   
+    return render(request, 'parlays.html', {'closedParlays': closedParlayDict, 'openParlays':openParlayDict, 'op':openParlayIDs, 'cl':closedParlays
+                                            })
 
 @login_required
 def active(request):
@@ -260,27 +286,54 @@ def active(request):
 @login_required
 def submit_parlay(request):
     if request.method == 'POST':
-        print(request.session['parlay'])
         if 'parlay' in request.session:
             parlay = request.session['parlay']
             lines = []
             #see if all of the over/unders are selected
             for leg in parlay:
                 line_id = leg[0][7]
-                o = request.POST.get(line_id)
-                print(o) #if neither button is selected, return error
-                if o == None:
+                ou = request.POST.get(line_id)
+                #if neither button is selected, return error
+                if ou == None:
                     messages.error(request, 'Need to select either over or under for all legs')
                     return redirect(active)
                 #add line_id
-                lines.append(line_id)
+                lines.append([line_id, ou])
 
 
             #make a new parlay with all of the given legs
-            print(lines)
-            cursor = connection.cursor()
-            #cursor.execute('INSERT INTO aaa_parlay (user_id, open, number_of_legs, amount_wagered) VALUES ("{}", "{}", "{}")'.format(request.user.username, request.user.email, 0))
+            #get amount wagered
+            amount = decimal.Decimal(request.POST.get('amount'))
+            #ensure that the wagered amount is not more than the user balance
+            user_balance = decimal.Decimal(getBalance(request.user.email)) 
 
+            if amount > user_balance:
+                messages.error(request, 'Amount wagered is greater than your balance!')
+                return redirect(active)
+
+            #subtract balance
+            setBalanceTo(request, user_balance - amount)
+            #get userID
+            uid = getUserId(request)
+
+            print(amount)
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO aaa_parlay (user_id, open, number_of_legs, amount_wagered) VALUES ("{}", "{}", "{}", "{}") RETURNING parlay_id'.format(uid, 1, len(lines), amount))
+            parlay_id = cursor.fetchone()[0]
+            #now we need to add the corresponding lines to the parlay in the leg table
+            for line in lines:
+                if line[1] == 'Over':
+                    cursor.execute('INSERT INTO aaa_leg (parlay_id, line_id, under) VALUES ("{}", "{}", "{}")'.format(parlay_id, line[0], 0))
+                elif line[1] == 'Under':
+                    cursor.execute('INSERT INTO aaa_leg (parlay_id, line_id, under) VALUES ("{}", "{}", "{}")'.format(parlay_id, line[0], 1))
+                
+            cursor.fetchall()
+
+            connection.commit()
+
+            #now we need to clear out session
+            del request.session['parlay']
+            return redirect(parlays)
 
         else:
             print('hi')

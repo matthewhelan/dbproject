@@ -9,10 +9,90 @@
     <a class="btn btn-outline-dark" href="parlays/active" role="button">Create A New Parlay</a> 
     <br>
     <br>
-    <h3>Active Parlays</h3>
-    <br>
+    <h2>Open Parlays</h2>
+    {% if openParlays %}
+    {% for lay in openParlays %}
+    <h5 >{{ op|index:forloop.counter0|index:3 }} Leg Parlay Wagering {{ op|index:forloop.counter0|index:4 }}</h5>
+    <table class="styled-table"> 
+        <thead>
+            <tr>
+                <th>Player Name</th>
+                <th>Team</th>
+                <th>Attribute</th>
+                <th>Value</th>
+                <th>Sportsbook</th>
+                <th>Odds</th>
+                <th>Over/Under</th>
+    
+            </tr>
+        </thead>        <tbody>
+    {% for idx in openParlays|get_item:lay %}
 
-    <h4>Parlay History</h4>
+    <tr>
+        <td>{{idx|index:11}}</td>
+        <td>{{idx|index:12}} {{idx|index:0}} </td>
+        <td>{{idx|index:6}}</td>
+        <td>{{idx|index:10}}</td>
+        <td>{{idx|index:9}}</td>
+        {% if idx|index:4 %}
+        <td>{{idx|index:7}}</td>
+        <td>Under</td>
+        {% else %}
+        <td>{{idx|index:8}}</td>
+        <td>Over</td>
+        {% endif %}
+        
+    </tr>
+    {% endfor %}
+</table>
+
+    {% endfor %}
+    {% else %}
+    <h5>No open parlays!</h5>
+    {% endif %}
+    <br><br>
+
+    <h2>Parlay History</h2>
+    {% if closedParlays %}
+    {% for lay in closedParlays %}
+    <h5 >{{ op|index:forloop.counter0|index:3 }} Leg Parlay Wagering {{ op|index:forloop.counter0|index:4 }}</h5>
+    <table class="styled-table"> 
+        <thead>
+            <tr>
+                <th>Player Name</th>
+                <th>Team</th>
+                <th>Attribute</th>
+                <th>Value</th>
+                <th>Sportsbook</th>
+                <th>Odds</th>
+                <th>Over/Under</th>
+    
+            </tr>
+        </thead>        <tbody>
+    {% for idx in closedParlays|get_item:lay %}
+    <tr>
+        <td>{{idx|index:11}}</td>
+        <td>{{idx|index:12}} {{idx|index:0}} </td>
+        <td>{{idx|index:6}}</td>
+        <td>{{idx|index:10}}</td>
+        <td>{{idx|index:9}}</td>
+        {% if idx|index:4 %}
+        <td>{{idx|index:7}}</td>
+        <td>Under</td>
+        {% else %}
+        <td>{{idx|index:8}}</td>
+        <td>Over</td>
+        {% endif %}
+        
+    </tr>
+    {% endfor %}
+</table>
+
+    {% endfor %}
+
+    {% else %}
+    <h5>No closed parlays!</h5>
+    {% endif %}
 
   </div>
  
