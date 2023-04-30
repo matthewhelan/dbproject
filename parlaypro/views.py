@@ -135,36 +135,40 @@ def index(request):
 
 @login_required
 def parlays(request): 
-    # del request.session['parlay']
+    #del request.session['parlay']
     return render(request, 'parlays.html')
 
 @login_required
 def active(request):
     cursor = connection.cursor()
-    cursor.execute('SELECT name, team_name, attribute, over_odds, under_odds, value, sportsbook FROM aaa_player NATURAL JOIN aaa_line WHERE line_id > 4980 AND team_name = "Suns"')
-    line_list = cursor.fetchall()
     parlay = []
     if 'parlay' in request.session:
         parlay = request.session['parlay']
-    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay, 'messages': messages.get_messages(request), 'button1_active': False, 'button2_active': False})
+    return render(request, 'createparlay.html', {'parlay':parlay, 'messages': messages.get_messages(request), 'button1_active': False, 'button2_active': False})
 
 @login_required
 def submit_parlay(request):
     if request.method == 'POST':
+        print(request.session['parlay'])
         if 'parlay' in request.session:
             parlay = request.session['parlay']
-
+            lines = []
             #see if all of the over/unders are selected
             for leg in parlay:
-                name = leg[0][0]
-                attr = leg[0][2]
-                print(name+'-'+attr)
-                o = request.POST.get(name+'-'+attr)
-                print(o)
+                line_id = leg[0][7]
+                o = request.POST.get(line_id)
+                print(o) #if neither button is selected, return error
                 if o == None:
                     messages.error(request, 'Need to select either over or under for all legs')
                     return redirect(active)
+                #add line_id
+                lines.append(line_id)
 
+
+            #make a new parlay with all of the given legs
+            print(lines)
+            cursor = connection.cursor()
+            #cursor.execute('INSERT INTO aaa_parlay (user_id, open, number_of_legs, amount_wagered) VALUES ("{}", "{}", "{}")'.format(request.user.username, request.user.email, 0))
 
 
         else:
@@ -172,27 +176,21 @@ def submit_parlay(request):
             messages.error(request, 'Need at least one leg in the parlay')
             return redirect(active)
         
-
-
-
-
     return redirect(active)
 
 
 @login_required
-def delete_leg(request):
-    if request.method == 'POST':
-        if 'parlay' in request.session:
-            #get idx
-            idx = request.POST.get('idx')
-            p = request.session['parlay']
-            print(p)
-            if len(p) > 1:
-                del p[int(idx)]
-                request.session['parlay'] = p
-            else:    
-                del request.session['parlay']
-            print(p)
+def delete_leg(request, idx):
+    if 'parlay' in request.session:
+        #get idx
+        p = request.session['parlay']
+        print(p)
+        if len(p) > 1:
+            del p[int(idx)]
+            request.session['parlay'] = p
+        else:    
+            del request.session['parlay']
+        print(p)
         
     return redirect(active)
     
@@ -211,13 +209,18 @@ def create_parlay(request):
         under = request.POST.get('under_odds')
         val = request.POST.get('value')
         book = request.POST.get('sportsbook')
-        parlay = [name, team, attribute,  val, book, over, under,]
+        line_id = request.POST.get('line_id')
+        parlay = [name, team, attribute,  val, book, over, under, line_id]
         # print(parlay)
 
         if 'parlay' in request.session:
             p = request.session['parlay']
-            p.append((parlay, None))
-            request.session['parlay'] = p
+            print(p)
+            if [parlay, None] in p:
+                messages.error(request, 'Cannot add same line to parlay twice!')
+            else:
+                p.append((parlay, None))
+                request.session['parlay'] = p
         else: #add to a new session with the parlay info, over/under
             request.session['parlay'] = [(parlay, None)]
 

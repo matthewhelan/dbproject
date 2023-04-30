@@ -13,13 +13,14 @@
 {% endif %}
 
 
-<h2>Current Parlay:</h2>
+<h2>Current Parlay: {% if parlay %}  {% if parlay|length == 1%} {{parlay|length}} leg {% else %} {{parlay|length}} legs {% endif %} {% else %} No legs added {% endif %}
+    
+    </h2>
 <br>
 
 <table class="styled-table"> 
     <thead>
         <tr>
-            <th>Remove Leg</th>
             <th>Player Name</th>
             <th>Team</th>
             <th>Attribute</th>
@@ -27,39 +28,35 @@
             <th>Sportsbook</th>
             <th>Over Odds</th>
             <th>Under Odds</th>
+            <th>Remove Leg</th>
+
         </tr>
     </thead>
     <tbody>
 {% for line in parlay %}   
 <tr> 
-    <td><form action="/parlays/delete_leg/" method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="idx" value="{{ forloop.counter0 }}"></input>
-        
-        <input type="submit" value="X" style="margin-left: auto; margin-right: auto;" >
-    </form></td>
     <td>{{line|index:0|index:0}}</td>
     <td>{{line|index:0|index:1}}</td>
     <td>{{line|index:0|index:2}}</td>
     <td>{{line|index:0|index:3}}</td>
     <td>{{line|index:0|index:4}} </td>
-            <td><form action="/parlays/submit/" method="POST"><label class="radio">{{line|index:0|index:5}}  
-                
-                <input type="radio" id="over" name="{{line|index:0|index:0}}-{{line|index:0|index:2}}" value="Over" class="toggle-button" onclick="toggleButton(1)"></button>  <span class="checkmark"></span>
+            <td>
+                <form action="/parlays/submit/" method="POST">
+                <label class="radio">
+                {{line|index:0|index:5}}     
+                <input type="radio" id="over" name="{{line|index:0|index:7}}" value="Over" class="toggle-button" onclick="toggleButton(1)"></button>  <span class="checkmark"></span>
                 
                 </label>
     </td>
-    <td> {{line|index:0|index:6}} 
+    <td> 
         <label class="radio">
-        <input type="radio" id="under" name="{{line|index:0|index:0}}-{{line|index:0|index:2}}" class="toggle-button" value="Under" onclick="toggleButton(2)"></button>
+            {{line|index:0|index:6}}
+        <input type="radio" id="under" name="{{line|index:0|index:7}}" class="toggle-button" value="Under" onclick="toggleButton(2)"></button>
         <span class="checkmark"></span> 
         </label></td>
                 
-    <td>
-        
-
-    </td>
-
+    <td><a href="/parlays/delete_leg/{{ forloop.counter0 }}" class="btn btn-outline-danger">Remove Leg</a> 
+        </td>
        
   
         <script>function toggleButton(button) {
@@ -89,52 +86,6 @@
 <br>
 <br>
 
-<table class="styled-table"> 
-    <thead>
-        <tr>
-            <th>Player Name</th>
-            <th>Team</th>
-            <th>Attribute</th>
-            <th>Value</th>
-            <th>Sportsbook</th>
-            <th>Over Odds</th>
-            <th>Under Odds</th>
-            <th>Add Line</th>
-        </tr>
-    </thead>
-    <tbody>
-{% for line in line_list %}   
-<tr>
-    <td>{{line|index:0}}</td>
-    <td>{{line|index:1}}</td>
-    <td>{{line|index:2}}</td>
-    <td>{{line|index:3}}</td>
-    <td>{{line|index:4}}</td>
-    <td>{{line|index:5}}</td>
-    <td>{{line|index:6}}</td>
-    <td>
-
-<form action="/parlays/create/" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="player_name" value="{{line|index:0}}"></input>
-    <input type="hidden" name="team" value="{{line|index:1}}"></input>
-    <input type="hidden" name="attribute" value="{{line|index:2}}"></input>
-    <input type="hidden" name="over_odds" value="{{line|index:3}}"></input>
-    <input type="hidden" name="under_odds" value="{{line|index:4}}"></input>
-    <input type="hidden" name="value" value="{{line|index:5}}"></input>
-    <input type="hidden" name="sportsbook" value="{{line|index:6}}"></input>
-    <input type="submit" value="Add to Parlay"></input>
-</form>
-</td>
-    
-</tr>
-
-{% endfor %}
-
-</tbody>
-</table>
-
-<h4>Current Amount of Legs: {{legs}}</h4>
 <br>
 
 {% endblock %}
