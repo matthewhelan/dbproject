@@ -27,6 +27,7 @@
         <th>Over_Odds</th>
         <th>Sportsbook</th>
         <th>value</th>
+        <th>Add to Parlay</th>
       </tr>
       {% for vals in addableLines %}
 
@@ -39,6 +40,18 @@
         <td>{{vals|index:5}}</td>
         <td>{{vals|index:6}}</td>
         <td>{{vals|index:7}}</td>
+        <td><form action="/parlays/create/" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="player_name" value="{{playerInfo|index:0|index:2}}"></input>
+          <input type="hidden" name="team" value="{{playerInfo|index:0|index:3}} {{playerInfo|index:0|index:0}}"></input>
+          <input type="hidden" name="attribute" value="{{vals|index:3}}"></input>
+          <input type="hidden" name="over_odds" value="{{vals|index:5}}"></input>
+          <input type="hidden" name="under_odds" value="{{vals|index:4}}"></input>
+          <input type="hidden" name="value" value="{{vals|index:7}}"></input>
+          <input type="hidden" name="sportsbook" value="{{vals|index:6}}"></input>
+          <input type="hidden" name="line_id" value="{{vals|index:0}}"></input>
+          <input type="submit" value="Add to Parlay"></input>
+      </form></td>
       </tr>
       {% endfor %}
     </table>
