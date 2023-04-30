@@ -29,6 +29,7 @@ urlpatterns = [
     path('unfollow/<int:user_id>/', views.unfollow, name="unfollowUser"),
     path('like/<int:parlay_id>/', views.like, name='like'),
     path('unlike/<int:parlay_id>/', views.unlike, name="unlike"),
-    path('logout/', views.logout_view, name='logout')
+    path('logout/', views.logout_view, name='logout'),
+    path('balance/', views.balance, name='balance'),
 
 ]

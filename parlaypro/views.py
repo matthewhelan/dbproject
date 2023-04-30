@@ -1,3 +1,4 @@
+import decimal
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -9,6 +10,51 @@ from .models import AaaUser
 #NOTE: for the scope of this project since we need to execute custom SQL queries
 #we will be using connection.cursor() from django.db module to access the db directly
 #in this way we can execute custom SQL queries (with cursor.execute())
+
+# utility function get userid: 
+def getUserId(request): 
+    cursor = connection.cursor()
+    cursor.execute('SELECT user_id FROM aaa_user WHERE email = \"{}\"'.format(request.user.email))
+    return cursor.fetchall()[0][0]
+
+def balance(request):
+    user_balance = decimal.Decimal(getBalance(request.user.email)) 
+    if request.method == 'POST': 
+        if (request.POST['button'] == 'withdrawAmountSubmit'):            
+            balance_to_withdraw = request.POST['my_value']
+            balance_to_withdraw = decimal.Decimal(balance_to_withdraw)
+            if ( user_balance - balance_to_withdraw >= 0 ):
+                setBalanceTo(request, user_balance - balance_to_withdraw)
+                user_balance = user_balance - balance_to_withdraw
+
+        elif (request.POST['button'] == 'depositAmountSubmit'): 
+            balance_to_add = decimal.Decimal(request.POST['my_value'])
+            if ( user_balance + balance_to_add <= 1000.00 ): 
+                setBalanceTo(request, user_balance + balance_to_add)
+                user_balance = user_balance + balance_to_add
+    
+    # max amount in bank is 1000
+    # and obv can't withdraw more than value in account
+    return render(request, 'balance.html', context={'balance':user_balance})
+
+def setBalanceTo(request, balance): 
+    user_id = getUserId(request)
+    cursor = connection.cursor()
+    cursor.execute('UPDATE aaa_user SET balance = {} WHERE user_id = {}'.format(balance, user_id))
+
+def addBalance(request, balance_to_add): 
+    user_balance = getBalance(request.user.email)
+    if ( user_balance + balance_to_add <= 1000.00 ): 
+        setBalanceTo(user_balance + balance_to_add)
+
+    return HttpResponseRedirect(reverse('balance'))
+
+def withdrawBalance(request, balance_to_withdraw): 
+    user_balance = getBalance(request.user.email)
+    if ( user_balance - balance_to_withdraw >= 1000.00 ): 
+        setBalanceTo(user_balance + balance_to_withdraw)
+
+    return HttpResponseRedirect(reverse('balance'))
 
 def logout_view(request): 
     if not request.user.is_authenticated: 
@@ -48,19 +94,17 @@ def unfollow(request, user_id):
     return HttpResponseRedirect(reverse('index'))
 
 def like(request, parlay_id): 
-    cursor = connection.cursor()
-    cursor.execute("SELECT user_id FROM aaa_user WHERE email=\"{}\"".format(request.user.email))
-    mainUserID = cursor.fetchall()[0][0]
+    mainUserID = getUserId(request)
 
+    cursor = connection.cursor()
     cursor.execute("INSERT INTO aaa_likes(user_id, parlay_id) VALUES ({},{})".format(mainUserID, parlay_id))
 
     return HttpResponseRedirect(reverse('index'))
 
 def unlike(request, parlay_id): 
-    cursor = connection.cursor()
-    cursor.execute("SELECT user_id FROM aaa_user WHERE email=\"{}\"".format(request.user.email))
-    mainUserID = cursor.fetchall()[0][0]
+    mainUserID = getUserId(request)
 
+    cursor = connection.cursor()
     cursor.execute("DELETE FROM aaa_likes WHERE user_id={} AND parlay_id={}".format(mainUserID, parlay_id))
 
     return HttpResponseRedirect(reverse('index'))
@@ -90,7 +134,6 @@ def index(request):
         cursor.execute('INSERT INTO aaa_user (user_name, email, balance) VALUES ("{}", "{}", "{}")'.format(request.user.username, request.user.email, 0))
     
     user_balance = getBalance(request.user.email)
-    print("balance: {}".format(user_balance))
 
     # check if the user email exists in the database
 
@@ -167,7 +210,7 @@ def index(request):
 
     cursor.execute('SELECT user_id FROM aaa_user WHERE email = \"{}\"'.format(request.user.email))
     userID = cursor.fetchall()[0][0]
-    print(userID)
+    # print(userID)
 
     # SELECT * 
     # FROM aaa_parlay NATURAL JOIN aaa_leg NATURAL JOIN aaa_line
@@ -197,12 +240,6 @@ def index(request):
         otherUser = cursor.fetchall()[0][0]
 
         parlayDetails[(key, otherUser, likes)] = values
-
-    for i in parlayDetails: 
-        print(i)
-        print(parlayDetails[i])
-
-    print(parlayDetails)
 
     return render(request, 'index.html', context={'balance':user_balance, 'addableUsers':addableUsersList, 'followedUsers':followedUsersList, 'parlayDetails':parlayDetails})
 
