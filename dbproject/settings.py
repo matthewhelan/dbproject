@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SITE_ID = 1
+SITE_ID = 2
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_LOGOUT_ON_GET= True
@@ -93,8 +93,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         'NAME' : 'ssb3vk',
         'HOST':"mysql01.cs.virginia.edu", 
-        'USER':"ssb3vk",
-        'PASSWORD':"WrFeK77hYZb3fxN",
+        'USER':"ssb3vk_a",
+        'PASSWORD':"Winter2023",
         'PORT' : '3306'
     }
 }
