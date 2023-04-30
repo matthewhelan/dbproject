@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tags %}
+
+{% block content %}
+
+<div class="container mb-3">
+    <h2>Search and Add Friends Here!</h2>
+    <br>
+    <form action="" method="post">
+        {% csrf_token %}
+        <p class="text-black" style="text-align:left;">Email: <input name="email" type="text" maxlength="20"style="width: 20%" id="tags"></p>
+        <input type="submit" value="Search">
+    </form>
+
+    {% if userList|length > 0 %}
+        <div>
+            <strong>Here are all the user emails that searched your query.</strong> Feel free to follow them! 
+            <br></br>
+            <ul class="list-group">
+                {% for user in userList %}
+                <li class="list-group-item text-capitalize">
+                    {{ user.user_name }}&nbsp&nbsp
+                    {{ user.name }}
+                    {{ user.email }}
+                    <a href="/follow/{{user.user_id}}/" class="btn btn-outline-dark btn-sm"> 
+                    <i class="bi bi-person-plus-fill fa-6x"> </i>
+                    Follow
+                    </a>
+                </li>
+                {% empty %}
+                    Sorry, you've either already sent friend requests to everyone, or you are the only user in the system
+                {% endfor %}
+            </ul>
+
+        </div>
+    {% else %}
+        <h1>Your search result returned no users!</h1>
+    {% endif %}
+
+
+</div>
+
+{% endblock %}

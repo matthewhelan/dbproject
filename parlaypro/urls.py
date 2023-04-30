@@ -27,6 +27,9 @@ urlpatterns = [
     path('parlays/submit/', views.submit_parlay, name='submitparlay'),
     path('parlays/delete_leg/<int:idx>', views.delete_leg, name='deleteleg'),
     path('players/<int:player_id>', views.playerPage, name='playerpage'),
+
+
+    path('friends/', views.friends, name='friends'),
     path('follow/<int:user_id>/', views.follow, name='followUser'),
     path('unfollow/<int:user_id>/', views.unfollow, name="unfollowUser"),
     path('like/<int:parlay_id>/', views.like, name='like'),

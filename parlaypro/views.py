@@ -64,6 +64,30 @@ def logout_view(request):
     logout(request)
     return redirect('/index/')
 
+def friends(request): 
+    user_balance = getBalance(request.user.email)
+    user_id = getUserId(request)
+    cursor = connection.cursor()
+
+    userResultList = []
+
+    if request.method == 'POST':
+        search_email = request.POST.get('email')
+        print('SELECT * FROM aaa_user WHERE email LIKE "%{}%" AND user_id NOT IN (SELECT user_id_follows FROM aaa_following WHERE user_id = {})'.format(search_email, user_id))
+        cursor.execute('SELECT * FROM aaa_user WHERE email LIKE "%{}%" AND user_id NOT IN (SELECT user_id_follows FROM aaa_following WHERE user_id = {})'.format(search_email, user_id) )
+        userResult = cursor.fetchall()
+
+        for userInfo in userResult: 
+            user = AaaUser()
+            user.user_id = userInfo[0]
+            user.user_name = userInfo[1]
+            user.name = userInfo[2]
+            user.email = userInfo[3]
+
+            userResultList.append(user)
+
+    return render(request, 'friends.html', context={'balance':user_balance, 'userList': userResultList})
+
 def follow(request, user_id): 
     cursor = connection.cursor()
 
