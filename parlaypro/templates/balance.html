@@ -10,33 +10,34 @@
 	<title>My Account Balance</title>
 </head>
 <body>
-	<h1>My Account Balance</h1>
-	<p id="balance">{{user_balance}}</p>
-	<!-- <div>
-		<label for="withdrawAmount">Withdraw: $</label>
-		<input type="number" id="withdrawAmount" min="0" step="0.01">
-		<button onclick="withdraw()">Withdraw</button>
-	</div>
-	<div>
-		<label for="depositAmount">Deposit: $</label>
-		<input type="number" id="depositAmount" min="0" step="0.01">
-		<button onclick="deposit()">Deposit</button>
-	</div> -->
+    <div class="container mb-3">
+        <h3>My Account Balance</h3>
+        <h1 id="balance"> {{balance}}</h1>
+        <!-- <div>
+            <label for="withdrawAmount">Withdraw: $</label>
+            <input type="number" id="withdrawAmount" min="0" step="0.01">
+            <button onclick="withdraw()">Withdraw</button>
+        </div>
+        <div>
+            <label for="depositAmount">Deposit: $</label>
+            <input type="number" id="depositAmount" min="0" step="0.01">
+            <button onclick="deposit()">Deposit</button>
+        </div> -->
 
-    <form method="POST">
-        {% csrf_token %}
-        <label for="withdrawAmount">Withdraw: $</label>
-        <input type="number" id="withdrawAmount" name="my_value" placeholder="0.00" min="0" step="0.01">
-        <input type="submit" name="button" value="withdrawAmountSubmit">
-    </form>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="withdrawAmount">Withdraw: $</label>
+            <input type="number" id="withdrawAmount" name="my_value" placeholder="0.00" min="0" step="0.01">
+            <input type="submit" name="button" value="withdrawAmountSubmit">
+        </form>
 
-    <form method="POST">
-        {% csrf_token %}
-        <label for="depositAmount">Deposit: $</label>
-        <input type="number" id="depositAmount" name="my_value" placeholder="0.00" min="0" step="0.01">
-        <input type="submit" name="button" value="depositAmountSubmit">
-    </form>
-
+        <form method="POST">
+            {% csrf_token %}
+            <label for="depositAmount">Deposit: $</label>
+            <input type="number" id="depositAmount" name="my_value" placeholder="0.00" min="0" step="0.01">
+            <input type="submit" name="button" value="depositAmountSubmit">
+        </form>
+    </div>
 </body>
 
 
