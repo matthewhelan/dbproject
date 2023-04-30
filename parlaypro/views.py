@@ -245,17 +245,20 @@ def index(request):
 
 @login_required
 def parlays(request): 
-    return render(request, 'parlays.html')
+    user_balance = decimal.Decimal(getBalance(request.user.email))
+    return render(request, 'parlays.html', context={'balance': user_balance})
 
 @login_required
 def active(request):
+    user_balance = decimal.Decimal(getBalance(request.user.email))
+
     cursor = connection.cursor()
     cursor.execute('SELECT name, team_name, attribute, over_odds, under_odds, value, sportsbook FROM aaa_player NATURAL JOIN aaa_line WHERE line_id > 4980 AND team_name = "Suns"')
     line_list = cursor.fetchall()
     parlay = []
     if 'parlay' in request.session:
         parlay = request.session['parlay']
-    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay})
+    return render(request, 'createparlay.html', {'line_list': line_list, 'parlay':parlay, 'balance': user_balance})
 
 @login_required
 def create_parlay(request):
@@ -285,6 +288,8 @@ def create_parlay(request):
 
 @login_required
 def players(request):
+    user_balance = decimal.Decimal(getBalance(request.user.email))
+
     cursor = connection.cursor()
     cursor.execute('SELECT city, team_name FROM aaa_team')
     teamList = cursor.fetchall()
@@ -328,11 +333,12 @@ def players(request):
             return render(request, 'players.html', {'teamList': teamList, 'playerResult': playerResult})
 
 
-    return render(request, 'players.html', {'teamList': teamList, 'playerResult': []})
+    return render(request, 'players.html', {'teamList': teamList, 'playerResult': [], 'balance': user_balance})
 
 
 
 def playerPage(request, player_id):
+    user_balance = decimal.Decimal(getBalance(request.user.email))
     #get the relevant player information
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM aaa_player NATURAL JOIN aaa_team WHERE player_id = %s', [player_id])
@@ -370,4 +376,4 @@ def playerPage(request, player_id):
                     statDict[stat].append([statistic, line])
 
         
-    return render(request, 'playerPage.html', {'playerInfo': playerInfo, 'lineInfo':lineInfo, 'addableLines':addableLines, 'gameInfo':gameInfo, 'statCategories':statCategories, 'statInfo':statInfo, 'statDict': statDict})
+    return render(request, 'playerPage.html', {'playerInfo': playerInfo, 'lineInfo':lineInfo, 'addableLines':addableLines, 'gameInfo':gameInfo, 'statCategories':statCategories, 'statInfo':statInfo, 'statDict': statDict, 'balance': user_balance})
